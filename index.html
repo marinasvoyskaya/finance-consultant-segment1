@@ -658,20 +658,26 @@ async function submitForm() {
   document.getElementById('submit-spinner').style.display = 'block';
   btn.disabled = true;
 
-  // Берём текст лейбла, а не value радио-кнопки
-  function getLabel(name) {
-    const radio = document.querySelector(`input[name="${name}"]:checked`);
+  const LABELS = {
+    q1: { pmzh: 'ПМЖ', vnzh_work: 'ВНЖ', zdp: 'ZDP', student: 'Студ. виза / DO' },
+    q2: { hpp: 'HPP', osvc: 'OSVČ', sro: 's.r.o.', none: 'Нет дохода' },
+    q3: { '20plus': 'больше 20%', '10-20': '10-20%', none: 'Взноса нет' },
+    q4: { rf_rb: 'РФ / РБ', ua: 'Украина', sng: 'Казахстан / Армения / Грузия / Другие страны СНГ', other: 'Другое' }
+  };
+
+  function getMapped(qName) {
+    const radio = document.querySelector(`input[name="${qName}"]:checked`);
     if (!radio) return '—';
-    return radio.closest('.quiz-option').querySelector('span').textContent.trim();
+    return LABELS[qName][radio.value] || radio.value;
   }
 
   const payload = {
     name,
     phone,
-    visaType:    getLabel('q1'),
-    incomeType:  getLabel('q2'),
-    downPayment: getLabel('q3'),
-    citizenship: getLabel('q4'),
+    visaType:    getMapped('q1'),
+    incomeType:  getMapped('q2'),
+    downPayment: getMapped('q3'),
+    citizenship: getMapped('q4'),
     source:      'landing',
     timestamp:   new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Prague' })
   };
