@@ -311,7 +311,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <nav>
   <a href="#" class="nav-logo">irinasemenova</a>
-  <a href="#quiz" class="nav-cta">Бесплатная консультация</a>
+  <a href="#contact" class="nav-cta">Бесплатная консультация</a>
 </nav>
 
 <!-- HERO -->
@@ -361,9 +361,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="card-title">Языковой барьер — не ваша проблема</div>
         <div class="card-text">Все переговоры с банком, сбор документов, общение с риск-менеджерами мы берём на себя. Вы получаете информацию только на русском языке, в понятных формулировках.</div>
       </div>
-      <div class="problem-card reveal">
-        <div class="card-icon icon-light">📊</div>
-        <div class="card-title">OSVČ и паушал — тоже решаемо</div>
+      <div class="problem-card reveal" id="osvc">
         <div class="card-text">Большинство банков некорректно считают доход предпринимателей с паушальным налогом. Мы знаем, какой банк использует правильную методологию и направляем именно туда.</div>
       </div>
     </div>
@@ -576,11 +574,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
-<!-- FINAL CTA -->
-<section id="final-cta">
+<!-- CONTACT -->
+<section id="contact">
   <div class="container">
     <div class="final-cta-inner reveal">
-      <div class="section-label" style="text-align:center;">Следующий шаг</div>
+      <div class="section-label" style="text-align:center;">Записаться</div>
       <h2 class="final-cta-title">Узнайте, в каком банке<br>вас ждут лучшие условия</h2>
       <p class="final-cta-sub">Пройдите короткий тест, чтобы получить список банков, работающих с вашим профилем, и бесплатный расчёт лимита.</p>
       <a href="#quiz" class="btn-primary" style="display:inline-flex; margin:0 auto;">
@@ -591,6 +589,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="pill"><div class="pill-dot"></div>Без запроса в BRKI</div>
         <div class="pill"><div class="pill-dot"></div>На русском языке</div>
       </div>
+
+      <!-- Quick contact form -->
+      <div id="quick-form-wrap" style="margin-top:48px; width:100%; max-width:480px; margin-left:auto; margin-right:auto;">
+        <p style="font-size:14px; color:var(--muted); margin-bottom:18px;">Или оставьте контакт — мы свяжемся сами:</p>
+        <form id="quick-contact-form" novalidate>
+          <div class="form-row">
+            <input class="form-input" type="text" id="qc-name" placeholder="Ваше имя" autocomplete="given-name">
+            <input class="form-input" type="tel" id="qc-phone" placeholder="Телефон (Telegram / WhatsApp)" autocomplete="tel">
+          </div>
+          <div class="form-error" id="qc-error">Пожалуйста, заполните имя и телефон</div>
+          <button type="submit" class="btn-submit" id="quick_contact_submit">
+            <span id="qc-submit-text">Оставить заявку →</span>
+            <div class="spinner" id="qc-spinner"></div>
+          </button>
+          <div style="margin-top:10px; font-size:12px; color:var(--muted);">Мы не передаём данные третьим лицам. Строго по стандартам GDPR.</div>
+        </form>
+      </div>
+
+      <!-- Quick form success -->
+      <div id="qc-success" style="display:none; margin-top:48px; width:100%; max-width:480px; margin-left:auto; margin-right:auto; text-align:center; animation: fadeInUp 0.4s ease both;">
+        <div class="success-icon" style="margin:0 auto 20px;">✓</div>
+        <div class="success-title">Спасибо!</div>
+        <div class="success-text">Ваша заявка отправлена, Ирина скоро с вами свяжется.</div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -601,7 +624,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="footer-links">
     <a href="#">Политика конфиденциальности</a>
     <a href="#">GDPR</a>
-    <a href="#quiz">Записаться</a>
+    <a href="#contact">Записаться</a>
   </div>
   <div class="footer-note">Финансовый консультант по ипотеке в Чехии. Вознаграждение от банка. Для клиента — бесплатно. 2026.</div>
 </footer>
@@ -712,6 +735,52 @@ async function submitForm() {
   }
 }
 
+
+// ── QUICK CONTACT FORM ──
+document.getElementById('quick-contact-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const name  = document.getElementById('qc-name').value.trim();
+  const phone = document.getElementById('qc-phone').value.trim();
+  const err   = document.getElementById('qc-error');
+
+  if (!name || !phone) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+
+  const btn = document.getElementById('quick_contact_submit');
+  document.getElementById('qc-submit-text').style.display = 'none';
+  document.getElementById('qc-spinner').style.display = 'block';
+  btn.disabled = true;
+
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNOEW020i1iQwi1v3KdPGdXeUNq_FB9fCtJPsOyjP5nycdRWSnL1ogGvj5o86L7dRW2g/exec';
+
+  const payload = {
+    name,
+    phone,
+    visaType:    'Быстрая форма (не указано)',
+    incomeType:  'Быстрая форма (не указано)',
+    downPayment: 'Быстрая форма (не указано)',
+    citizenship: 'Быстрая форма (не указано)',
+    source:      'quick_form',
+    timestamp:   new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Prague' })
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method:  'POST',
+      mode:    'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+  } catch(err) {
+    console.error('Quick form error:', err);
+  }
+
+  // Очищаем форму и показываем success
+  document.getElementById('quick-form-wrap').style.display = 'none';
+  const successEl = document.getElementById('qc-success');
+  successEl.style.display = 'block';
+});
 
 const obs = new IntersectionObserver((entries) => {
   entries.forEach((e, i) => {
